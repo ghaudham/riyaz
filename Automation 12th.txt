@@ -1,0 +1,39 @@
+package Test;
+
+import java.io.IOException;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import Resource.Locators;
+import Resource.Repoter;
+import Resource.base;
+
+public class TestCaseOne {
+
+	@Test
+	public void TC1_VerifyUserIsAbleToNavigateToAdminPanelByClickingOnWelcomdropdown () throws IOException, InterruptedException {
+		//clicking on user btn
+		
+		base.ClickByXpathSelector(Locators.UserBtn);
+		String name1 = "TC1_Verifying welcome dropdown";
+
+		base.TakeScreenshot(name1);
+
+
+		//clicking on Admin btn
+		base.ClickByCssSelector(Locators.adminBtn);
+
+		//ToVerify Admin library Text after clicking on Admin btn
+		String text =  base.GetTextByCssSelector(Locators.adminPageHeader);
+
+		//Asserting Page Header
+		Assert.assertEquals(text.trim(), "|Admin Library","Mismatch in Title - Admin page");
+		base.waitForVisibleByCssSelector(Locators.panels);
+
+		// Taking Screenshot & Adding Logs
+		String name = new Exception().getStackTrace()[0].getMethodName();
+		base.TakeScreenshot(name);
+
+	}
+}
