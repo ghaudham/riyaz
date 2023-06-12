@@ -1,0 +1,158 @@
+package Test;
+
+import java.io.IOException;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import Resource.Locators;
+import Resource.Repoter;
+import Resource.TestData;
+import Resource.base;
+
+public class TestCases {
+
+    @Test
+    public void TC1_VerifyUserIsAbleToNavigateToAdminPanelByClickingOnWelcomdropdown() throws IOException, InterruptedException {
+        base.ClickByXpathSelector(Locators.UserBtn);
+        String name1 = "TC1_Verifying welcome dropdown";
+        base.TakeScreenshot(name1);
+
+        base.ClickByCssSelector(Locators.adminBtn);
+        String text = base.GetTextByCssSelector(Locators.adminPageHeader);
+        Assert.assertEquals(text.trim(), "|Admin Library", "Mismatch in Title - Admin page");
+        base.waitForVisibleByCssSelector(Locators.panels);
+
+        String name = new Exception().getStackTrace()[0].getMethodName();
+        base.TakeScreenshot(name);
+    }
+
+    @Test
+    public void TC2_VerifyIfTheUserIsAbleToSeeAndClickOnAddReportsOrNewDashboardButtonInTheAdminPanel() throws IOException, InterruptedException {
+        base.ClickByCssSelector(Locators.reportBtn);
+        base.waitForVisibleByCssSelector(Locators.popup);
+        String name = new Exception().getStackTrace()[0].getMethodName();
+        base.TakeScreenshot(name);
+    }
+
+    @Test
+    public void TC3_ValidateWhetherTheUserCanClickAndNavigateToAddPowerBIReportToLibraryPopupAfterClickingOnAddReportOrNewDashboard() throws IOException, InterruptedException {
+        base.waitForVisibleByXpath(Locators.Addreports);
+        base.waitForVisibleByXpath(Locators.AddDashboard);
+        base.waitforelementClickable(Locators.AddPowerBiRadioBtn);
+        base.ClickByCssSelector(Locators.AddPowerBiRadioBtn);
+        String name = new Exception().getStackTrace()[0].getMethodName();
+        base.TakeScreenshot(name);
+    }
+
+    @Test
+    public void TC4_ValidateWhetherTheUserCanClickOnNextByClickingOnPopupOfAddPowerBIReportToLibrary() throws IOException, InterruptedException {
+        base.ClickByCssSelector(Locators.NextBtn);
+        String name = new Exception().getStackTrace()[0].getMethodName();
+        base.TakeScreenshot(name);
+    }
+
+    @Test
+    public void TC5_VerifyIfTheUserCanSeeTheFollowingMessageAlongWithTheToggleThatIsSetOnDisabledAsDefault() throws IOException, InterruptedException {
+        boolean toggleBtnVisibilityStatus = base.checkElementDisplayed(Locators.AzzureAccontToggleBtn);
+        if (toggleBtnVisibilityStatus) {
+            Boolean toggleBtnStatus = base.checkElementEnabled(Locators.AzzureAccontToggleBtn);
+            Assert.assertFalse(toggleBtnStatus, "Toggle button Is Displayed but not disabled");
+
+            String[] elementArr = {
+                    Locators.DescriptionTextBoxDisbaledstate,
+                    Locators.WorkspaceTextBoxDisbaledstate,
+                    Locators.ReportDashboardTextBoxDisbaledstate
+            };
+
+            for (String element : elementArr) {
+                Boolean status = base.checkElementEnabled(element);
+                String[] values = element.split("'");
+                Assert.assertFalse(status, values[1] + " Textbox Is Enabled, Expected to be Disabled");
+            }
+        } else {
+            System.out.println("Toggle button Is not displayed");
+        }
+
+        String name = new Exception().getStackTrace()[0].getMethodName();
+        base.TakeScreenshot(name);
+    }
+
+    @Test
+    public void TC6_VerifyIfTheUserIsUnableToEditTheWorkspaceIDDescriptionAndReportIDFieldWithoutSwitchingTheToggleFromDisabledToEnabledInAddPowerBIReportToLibraryPopup() throws IOException, InterruptedException {
+        base.ClickByCssSelector(Locators.toggleBtn);
+        Thread.sleep(2000);
+
+        String[] elementArr = {
+                Locators.DescriptionTextBox,
+                Locators.WorkspaceTextBox,
+                Locators.ReportAndDashboardTextBox
+        };
+
+        String[] valueToSend = {
+                TestData.DescriptionValue,
+                TestData.WorkspaceValue,
+                TestData.ReportId
+        };
+
+        for (int i = 0; i < elementArr.length; i++) {
+            base.SendKeysbyXpath(elementArr[i], valueToSend[i]);
+        }
+
+        base.TakeScreenshot("Values_applied_In_Description_WorkspaceID_ReportID");
+        base.ClickByCssSelector(Locators.AddReportButton);
+        Thread.sleep(2000);
+        String assertStatus = base.GetTextByCssSelector(Locators.AssertStatus);
+
+        if (assertStatus.trim().contains("Already Onboarded")) {
+            base.printLog("Assert Already Onboarded " + ":: Message From Header " + assertStatus);
+        } else {
+            base.printLog(" Assert onboarded Successfully " + ":: Message From Header " + assertStatus);
+            System.out.println(base.driver.switchTo().defaultContent());
+        }
+
+        base.TakeScreenshot("TC_6 Assert Status");
+
+        WebElement ok = base.driver.findElement(By.xpath(Locators.sadc));
+        JavascriptExecutor js = (JavascriptExecutor) base.driver;
+        js.executeScript("arguments[0].click();", ok);
+
+        String name = new Exception().getStackTrace()[0].getMethodName();
+        base.TakeScreenshot(name);
+    }
+
+    @Test
+    public void TC7AssetNameUpdate() throws IOException, InterruptedException {
+        base.ClickByCssSelector(Locators.dashClick);
+        Thread.sleep(3000);
+        base.ClickByCssSelector(Locators.editClick);
+        base.SendKeysbyXpath(Locators.inputbox, TestData.assetName);
+        base.ClickByCssSelector(Locators.updBtn);
+        Thread.sleep(2000);
+        String assertStatus = base.driver.findElement(By.xpath(Locators.updStatus)).getText();
+        base.printLog(assertStatus);
+        base.TakeScreenshot("TC7_Assert_Name_Update");
+        Thread.sleep(1000);
+        base.ClickByCssSelector(Locators.OkBtn);
+        base.ClickByCssSelector(Locators.editClick);
+        base.ClickByCssSelector(Locators.updBtn);
+        assertStatus = base.driver.findElement(By.xpath(Locators.updStatus)).getText();
+        base.printLog(assertStatus);
+        base.TakeScreenshot("TC7_Assert_Name_Update");
+        base.ClickByCssSelector(Locators.OkBtn);
+    }
+
+    @Test
+    public void TC8_UpdateAsset() throws InterruptedException, IOException {
+        base.driver.findElement(By.xpath(Locators.updAsset)).click();
+        base.TakeScreenshot("TC8_Asset_Update_Popup");
+        base.driver.findElement(By.xpath(Locators.updAsset1)).click();
+        Thread.sleep(15000);
+        base.ClickByCssSelector(Locators.OkBtn);
+    }
+}
